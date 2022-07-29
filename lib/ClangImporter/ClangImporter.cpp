@@ -5674,6 +5674,9 @@ ClangImporter::getCXXFunctionTemplateSpecialization(SubstitutionMap subst,
                                                     ValueDecl *decl) {
   PrettyStackTraceDeclAndSubst trace("specializing", subst, decl);
 
+  if(!decl->getBaseName().isSpecial() && decl->getBaseIdentifier().str().str() == "diagnose") {
+    llvm::dbgs() << "Diagnose5\n";
+  }
   assert(isa<clang::FunctionTemplateDecl>(decl->getClangDecl()) &&
          "This API should only be used with function templates.");
 

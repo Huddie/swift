@@ -39,12 +39,6 @@ typedef enum ENUM_EXTENSIBILITY_ATTR(open) BridgedDiagID : uint32_t {
 #include "swift/AST/DiagnosticsAll.def"
 } BridgedDiagID;
 
-// FIXME: Can we bridge InFlightDiagnostic?
-void DiagnosticEngine_diagnose(swift::DiagnosticEngine &, swift::SourceLoc loc,
-                               BridgedDiagID diagID, BridgedArrayRef arguments,
-                               swift::CharSourceRange highlight,
-                               BridgedArrayRef fixIts);
-
 SWIFT_END_NULLABILITY_ANNOTATIONS
 
 #endif // SWIFT_AST_ASTBRIDGING_H

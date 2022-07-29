@@ -499,7 +499,7 @@ namespace swift {
   /// Only a single in-flight diagnostic can be active at one time, and all
   /// additional information must be emitted through the active in-flight
   /// diagnostic.
-  class InFlightDiagnostic {
+  class SWIFT_IMPORT_REFERENCE InFlightDiagnostic {
     friend class DiagnosticEngine;
     
     DiagnosticEngine *Engine;

@@ -74,13 +74,19 @@ public struct DiagnosticEngine {
     // calls, so we don't escape anything from the closure. 'bridgedArgs' and
     // 'bridgedFixIts' are temporary storage to store bridged values. So they
     // should not be used after the closure is executed.
- 
+
     var closure: () -> Void = {
       bridgedArgs.withBridgedArrayRef { bridgedArgsRef in
         bridgedFixIts.withBridgedArrayRef { bridgedFixItsRef in
-          DiagnosticEngine_diagnose(bridged, bridgedSourceLoc,
-                                    id, bridgedArgsRef,
-                                    bridgedHighlightRange, bridgedFixItsRef)
+            var inflight: swift.InFlightDiagnostic = self.bridged.diagnose(bridgedSourceLoc, id, bridgedArgsRef, ArgTypes: DiagnosticArgument.Type)
+            if(bridgedHighlightRange.isValid()) {
+                inflight.highlightChars(bridgedHighlightRange.__getStartUnsafe(), bridgedHighlightRange.__getEndUnsafe())
+            }
+            for fixIt in bridgedFixItsRef {
+                let range = fixIt.getRange();
+                let text = fixIt.getText();
+                inflight.fixItReplaceChars(range.__getStartUnsafe(), range.__getEndUnsafe(), text);
+            }
         }
       }
     }
@@ -102,8 +108,6 @@ public struct DiagnosticEngine {
         }
       }
     }
-
-    closure()
   }
 
   public func diagnose(_ position: SourceLoc?,

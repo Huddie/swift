@@ -3101,6 +3101,9 @@ namespace {
           importedType =
               Impl.importFunctionReturnType(dc, decl, allowNSUIntegerAsInt);
       } else {
+        if(decl->getDeclName().getAsString() == "diagnose") {
+          llvm::dbgs() << "Diagnose1\n";
+        }
         // Import the function type. If we have parameters, make sure their
         // names get into the resulting function type.
         importedType = Impl.importFunctionParamsAndReturnType(
@@ -3169,6 +3172,11 @@ namespace {
             bodyParams, genericParams, dc);
       } else {
         auto resultTy = importedType.getType();
+
+        if(decl->getDeclName().getAsString() == "diagnose") {
+          if(resultTy)
+            resultTy->dump();
+        }
 
         FuncDecl *func =
             createFuncOrAccessor(Impl, loc, accessorInfo, name,

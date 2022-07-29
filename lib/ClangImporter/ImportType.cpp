@@ -2138,6 +2138,10 @@ ImportedType ClangImporter::Implementation::importFunctionParamsAndReturnType(
     bool isFromSystemModule, DeclName name, ParameterList *&parameterList,
     ArrayRef<GenericTypeParamDecl *> genericParams) {
 
+  if(clangDecl->getDeclName().getAsString() == "diagnose") {
+    llvm::dbgs() << "Diagnose2\n";
+  }
+
   bool allowNSUIntegerAsInt =
       shouldAllowNSUIntegerAsInt(isFromSystemModule, clangDecl);
 
@@ -2147,6 +2151,9 @@ ImportedType ClangImporter::Implementation::importFunctionParamsAndReturnType(
   ImportDiagnosticAdder addDiag(*this, clangDecl,
                                 clangDecl->getSourceRange().getBegin());
   if (auto typedefType = dyn_cast<clang::TypedefType>(clangDecl->getReturnType().getTypePtr())) {
+    if(clangDecl->getDeclName().getAsString() == "diagnose") {
+      llvm::dbgs() << "Typedef\n";
+    }
     if (isUnavailableInSwift(typedefType->getDecl())) {
       if (auto clangEnum = findAnonymousEnumForTypedef(SwiftContext, typedefType)) {
         // If this fails, it means that we need a stronger predicate for
@@ -2162,6 +2169,10 @@ ImportedType ClangImporter::Implementation::importFunctionParamsAndReturnType(
 
   if (auto templateType =
           dyn_cast<clang::TemplateTypeParmType>(clangDecl->getReturnType())) {
+    if(clangDecl->getDeclName().getAsString() == "diagnose") {
+      llvm::dbgs() << "Template\n";
+      templateType->dump();
+    }
     importedType = {findGenericTypeInGenericDecls(
                         *this, templateType, genericParams,
                         getImportTypeAttrs(clangDecl), addDiag),
@@ -2169,6 +2180,9 @@ ImportedType ClangImporter::Implementation::importFunctionParamsAndReturnType(
   } else if ((isa<clang::PointerType>(clangDecl->getReturnType()) ||
           isa<clang::ReferenceType>(clangDecl->getReturnType())) &&
          isa<clang::TemplateTypeParmType>(clangDecl->getReturnType()->getPointeeType())) {
+    if(clangDecl->getDeclName().getAsString() == "diagnose") {
+      llvm::dbgs() << "Pointer/Ref/Temp\n";
+    }
     auto pointeeType = clangDecl->getReturnType()->getPointeeType();
     auto templateParamType = cast<clang::TemplateTypeParmType>(pointeeType);
     PointerTypeKind pointerKind = pointeeType.getQualifiers().hasConst()
@@ -2185,6 +2199,9 @@ ImportedType ClangImporter::Implementation::importFunctionParamsAndReturnType(
              clangDecl->isOverloadedOperator() ||
              // Dependant types are trivially mapped as Any.
              clangDecl->getReturnType()->isDependentType()) {
+    if(clangDecl->getDeclName().getAsString() == "diagnose") {
+      llvm::dbgs() << "Record stuff\n";
+    }
     // If importedType is already initialized, it means we found the enum that
     // was supposed to be used (instead of the typedef type).
     if (!importedType) {
@@ -2197,6 +2214,9 @@ ImportedType ClangImporter::Implementation::importFunctionParamsAndReturnType(
     }
   }
 
+  if(clangDecl->getDeclName().getAsString() == "diagnose") {
+    llvm::dbgs() << "Diagnose3\n";
+  }
   Type swiftResultTy = importedType.getType();
   ArrayRef<Identifier> argNames = name.getArgumentNames();
   parameterList = importFunctionParameterList(dc, clangDecl, params, isVariadic,
